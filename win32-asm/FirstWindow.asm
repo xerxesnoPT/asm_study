@@ -13,11 +13,15 @@ includelib    kernel32.lib
                 .data?
 hInstance       dd      ?
 hWinMain        dd      ?
-
+szBuffer	db	256 dup (?)   ;此处定义buffer数据，用来接收缓冲区中wsprintf函数构建的字符串
                 .const
 szClassName     db      'Myclass',0
 szCaptionMain   db      'My first windows!', 0
 szText          db      'Win32 Assembly, Simple and powerful !',0
+szReceive       db      'receive wm_settext meeage', 0dh,0ah
+                db      'param: %08x', 0dh,0ah
+                db      'text: "%s"', 0dh,0ah,0
+
 
                 .code
 
@@ -41,6 +45,10 @@ _ProcWinMain    proc    uses ebx edi esi, hWnd,uMsg,wParam,lParam
                 .elseif eax == WM_CLOSE
                         invoke  DestroyWindow, hWinMain
                         invoke  PostQuitMessage,NULL
+
+                .elseif eax == WM_SETTEXT
+                        invoke wsprintf, addr szBuffer, addr szReceive, lParam, lParam
+                        invoke MessageBox, hWnd, offset szBuffer, addr szCaptionMain, MB_OK
 
                 .else
                         invoke  DefWindowProc, hWnd, uMsg, wParam, lParam
